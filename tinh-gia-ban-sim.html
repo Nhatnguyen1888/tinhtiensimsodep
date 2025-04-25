@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Tính Giá Bán Sim Số Đẹp</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f0f0f0;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    td, th {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: right;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .row-label {
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Tính Giá Bán Sim (Lợi nhuận mong muốn)</h2>
+
+    <label>Chiết khấu web (%):</label>
+    <input type="number" id="webDiscount" value="40">
+
+    <label>Phí giao dịch hộ (VNĐ):</label>
+    <input type="number" id="transactionFee" value="200000">
+
+    <label>Lợi nhuận kỳ vọng (VNĐ):</label>
+    <input type="number" id="expectedProfit" placeholder="Nhập lợi nhuận mong muốn">
+
+    <br><br>
+    <label><strong>Nhập giá sim (3 dòng):</strong></label><br>
+    <input type="number" id="price1" placeholder="Giá sim dòng 1">
+    <input type="number" id="price2" placeholder="Giá sim dòng 2">
+    <input type="number" id="price3" placeholder="Giá sim dòng 3">
+    <br>
+    <button onclick="calculate()">Tính giá bán</button>
+
+    <table id="resultTable" style="display:none;">
+      <thead>
+        <tr>
+          <th class="row-label">Dòng</th>
+          <th>Giá sim</th>
+          <th>Chi phí gốc</th>
+          <th>Lợi nhuận kỳ vọng</th>
+          <th>Phải nhận về</th>
+          <th>Giá bán tối thiểu</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function formatVN(num) {
+      return num.toLocaleString('vi-VN');
+    }
+
+    function calculate() {
+      const discount = parseFloat(document.getElementById('webDiscount').value) / 100;
+      const fee = parseFloat(document.getElementById('transactionFee').value);
+      const expectedProfit = parseFloat(document.getElementById('expectedProfit').value);
+
+      const prices = [
+        parseFloat(document.getElementById('price1').value),
+        parseFloat(document.getElementById('price2').value),
+        parseFloat(document.getElementById('price3').value)
+      ];
+
+      let resultHTML = '';
+      prices.forEach((simPrice, index) => {
+        if (!isNaN(simPrice) && simPrice > 0) {
+          const totalCost = simPrice + fee;
+          // Công thức: Giá bán = (Chi phí gốc + Lợi nhuận kỳ vọng) / (1 - Chiết khấu web)
+          const minPrice = (totalCost + expectedProfit) / (1 - discount);
+
+          resultHTML += `
+            <tr>
+              <td class="row-label">Dòng ${index + 1}</td>
+              <td>${formatVN(simPrice)} đ</td>
+              <td>${formatVN(totalCost)} đ</td>
+              <td>${formatVN(expectedProfit)} đ</td>
+              <td>${formatVN(totalCost + expectedProfit)} đ</td>
+              <td style="font-weight:bold; color:#c00;">${formatVN(Math.ceil(minPrice))} đ</td>
+            </tr>
+          `;
+        }
+      });
+
+      if (resultHTML !== '') {
+        document.getElementById('resultBody').innerHTML = resultHTML;
+        document.getElementById('resultTable').style.display = 'table';
+      } else {
+        alert("Vui lòng nhập ít nhất một giá sim hợp lệ.");
+      }
+    }
+  </script>
+</body>
+</html>
